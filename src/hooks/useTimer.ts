@@ -8,7 +8,13 @@ interface UseTimerOptions {
 export function useTimer({ initialMinutes = 5, onComplete }: UseTimerOptions = {}) {
   const [totalSeconds, setTotalSeconds] = useState(initialMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
-  const [initialTime] = useState(initialMinutes * 60);
+  const [initialTime, setInitialTime] = useState(initialMinutes * 60);
+
+  const setDuration = useCallback((minutes: number) => {
+    setIsRunning(false);
+    setInitialTime(minutes * 60);
+    setTotalSeconds(minutes * 60);
+  }, []);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const minutes = Math.floor(totalSeconds / 60);
@@ -74,5 +80,7 @@ export function useTimer({ initialMinutes = 5, onComplete }: UseTimerOptions = {
     pause,
     reset,
     toggle,
+    setDuration,
+    currentDuration: Math.round(initialTime / 60),
   };
 }
