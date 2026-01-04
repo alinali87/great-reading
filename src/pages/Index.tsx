@@ -1,14 +1,28 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { PdfUploader } from '@/components/PdfUploader';
+import { ReadingApp } from '@/components/ReadingApp';
+import { BookData } from '@/types/reading';
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [book, setBook] = useState<BookData | null>(null);
+
+  const handleUpload = (file: File, content: string[]) => {
+    setBook({
+      name: file.name.replace('.pdf', ''),
+      content,
+      currentPage: 0,
+    });
+  };
+
+  const handleClose = () => {
+    setBook(null);
+  };
+
+  if (book) {
+    return <ReadingApp book={book} onClose={handleClose} />;
+  }
+
+  return <PdfUploader onUpload={handleUpload} />;
 };
 
 export default Index;
