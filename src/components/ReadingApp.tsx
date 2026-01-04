@@ -36,6 +36,7 @@ export function ReadingApp({ book, onClose, timerDuration, hasWord, onAddWord }:
       toast({
         title: "Word added!",
         description: `"${word}" has been added to your dictionary.`,
+        duration: 1500,
       });
     }
     return added;
