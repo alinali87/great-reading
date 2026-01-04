@@ -1,27 +1,27 @@
 import { useState } from 'react';
 import { Book, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Timer } from './Timer';
+import { MinimalTimer } from './MinimalTimer';
 import { ReadingModeToggle } from './ReadingModeToggle';
 import { ReadingView } from './ReadingView';
-import { DictionarySidebar } from './DictionarySidebar';
 import { useTimer } from '@/hooks/useTimer';
-import { useDictionary } from '@/hooks/useDictionary';
 import { ReadingMode, BookData } from '@/types/reading';
 import { toast } from '@/hooks/use-toast';
 
 interface ReadingAppProps {
   book: BookData;
   onClose: () => void;
+  timerDuration: number;
+  hasWord: (word: string) => boolean;
+  onAddWord: (word: string, definition: string, context?: string) => boolean;
 }
 
-export function ReadingApp({ book, onClose }: ReadingAppProps) {
+export function ReadingApp({ book, onClose, timerDuration, hasWord, onAddWord }: ReadingAppProps) {
   const [mode, setMode] = useState<ReadingMode>('page');
-  const [currentPage, setCurrentPage] = useState(0);
-  const [showDictionary, setShowDictionary] = useState(true);
+  const [currentPage, setCurrentPage] = useState(book.currentPage || 0);
 
   const timer = useTimer({
-    initialMinutes: 5,
+    initialMinutes: timerDuration,
     onComplete: () => {
       toast({
         title: "Time's up!",
@@ -30,10 +30,8 @@ export function ReadingApp({ book, onClose }: ReadingAppProps) {
     },
   });
 
-  const dictionary = useDictionary();
-
   const handleAddWord = (word: string, definition: string, context?: string) => {
-    const added = dictionary.addWord(word, definition, context);
+    const added = onAddWord(word, definition, context);
     if (added) {
       toast({
         title: "Word added!",
@@ -44,68 +42,41 @@ export function ReadingApp({ book, onClose }: ReadingAppProps) {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Book className="h-5 w-5 text-primary" />
-              <h1 className="font-medium text-foreground">{book.name}</h1>
-            </div>
+    <div className="flex h-screen flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <Book className="h-5 w-5 text-primary" />
+            <h1 className="font-medium text-foreground">{book.name}</h1>
           </div>
+        </div>
 
-          <div className="flex items-center gap-6">
-            <ReadingModeToggle mode={mode} onModeChange={setMode} />
-            <Timer
-              minutes={timer.minutes}
-              seconds={timer.seconds}
-              isRunning={timer.isRunning}
-              timerState={timer.timerState}
-              progress={timer.progress}
-              onToggle={timer.toggle}
-              onReset={timer.reset}
-            />
-            <Button
-              variant={showDictionary ? 'secondary' : 'outline'}
-              size="sm"
-              onClick={() => setShowDictionary(!showDictionary)}
-              className="gap-2"
-            >
-              <Book className="h-4 w-4" />
-              Dictionary
-              {dictionary.wordCount > 0 && (
-                <span className="rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
-                  {dictionary.wordCount}
-                </span>
-              )}
-            </Button>
-          </div>
-        </header>
-
-        {/* Reading area */}
-        <main className="flex-1 overflow-hidden p-6">
-          <ReadingView
-            content={book.content}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            mode={mode}
-            hasWord={dictionary.hasWord}
-            onAddWord={handleAddWord}
+        <div className="flex items-center gap-6">
+          <ReadingModeToggle mode={mode} onModeChange={setMode} />
+          <MinimalTimer
+            isRunning={timer.isRunning}
+            progress={timer.progress}
+            onToggle={timer.toggle}
+            onReset={timer.reset}
           />
-        </main>
-      </div>
+        </div>
+      </header>
 
-      {/* Dictionary sidebar */}
-      <DictionarySidebar
-        words={dictionary.words}
-        onRemoveWord={dictionary.removeWord}
-        isOpen={showDictionary}
-      />
+      {/* Reading area - full width without sidebar */}
+      <main className="flex-1 overflow-hidden p-6">
+        <ReadingView
+          content={book.content}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          mode={mode}
+          hasWord={hasWord}
+          onAddWord={handleAddWord}
+        />
+      </main>
     </div>
   );
 }
