@@ -1,0 +1,747 @@
+openapi: 3.0.3
+info:
+  title: GreatReading API
+  description: |
+    API for GreatReading - An English language learning reading application.
+
+    ## Features
+    - Upload and manage PDF books
+    - Track reading progress (page/sentence modes)
+    - Personal dictionary with word definitions
+    - Word pronunciation
+    - Timer settings for reading sessions
+
+    ## Future Features (not yet implemented)
+    - Book chunking (readable in configurable time intervals)
+    - Anki integration for dictionary syncing
+  version: 1.0.0
+  contact:
+    name: GreatReading API Support
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+  - url: https://api.greatreading.app/v1
+    description: Production server
+
+tags:
+  - name: books
+    description: Book management operations
+  - name: dictionary
+    description: Personal dictionary operations
+  - name: definitions
+    description: Word definition lookup
+  - name: settings
+    description: User settings and preferences
+
+paths:
+  # Books endpoints
+  /books:
+    get:
+      tags:
+        - books
+      summary: List all books
+      description: Retrieve a list of all books uploaded by the user
+      operationId: listBooks
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  books:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - books
+      summary: Upload a new book
+      description: Upload a PDF file and extract its content for reading
+      operationId: uploadBook
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file to upload
+      responses:
+        '201':
+          description: Book successfully uploaded and processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid file or bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidFileType:
+                  value:
+                    error: "Invalid file type"
+                    message: "Only PDF files are supported"
+                fileTooLarge:
+                  value:
+                    error: "File too large"
+                    message: "Maximum file size is 50MB"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /books/{bookId}:
+    get:
+      tags:
+        - books
+      summary: Get a specific book
+      description: Retrieve details and content of a specific book
+      operationId: getBook
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier of the book
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - books
+      summary: Delete a book
+      description: Remove a book from the user's library
+      operationId: deleteBook
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier of the book
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Book successfully deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - books
+      summary: Update book progress
+      description: Update the current page or reading progress of a book
+      operationId: updateBookProgress
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier of the book
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPage:
+                  type: integer
+                  minimum: 0
+                  description: Current page number (0-indexed)
+      responses:
+        '200':
+          description: Progress successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Dictionary endpoints
+  /dictionary:
+    get:
+      tags:
+        - dictionary
+      summary: Get user's personal dictionary
+      description: Retrieve all words saved in the user's personal dictionary
+      operationId: getDictionary
+      parameters:
+        - name: sort
+          in: query
+          description: Sort order for dictionary words
+          schema:
+            type: string
+            enum: [addedAt_desc, addedAt_asc, word_asc, word_desc]
+            default: addedAt_desc
+        - name: limit
+          in: query
+          description: Maximum number of words to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of words to skip for pagination
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  words:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DictionaryWord'
+                  total:
+                    type: integer
+                    description: Total number of words in dictionary
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - dictionary
+      summary: Add a word to dictionary
+      description: Add a new word with its definition to the user's personal dictionary
+      operationId: addWordToDictionary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - word
+                - definition
+              properties:
+                word:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  description: The word to add
+                  example: "serendipity"
+                definition:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                  description: Definition of the word
+                  example: "The occurrence of events by chance in a happy or beneficial way"
+                context:
+                  type: string
+                  maxLength: 500
+                  description: Optional sentence context where the word was encountered
+                  example: "It was pure serendipity that led them to meet."
+      responses:
+        '201':
+          description: Word successfully added to dictionary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictionaryWord'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          description: Word already exists in dictionary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Conflict"
+                message: "Word already exists in your dictionary"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dictionary/{wordId}:
+    delete:
+      tags:
+        - dictionary
+      summary: Remove a word from dictionary
+      description: Delete a word from the user's personal dictionary
+      operationId: removeWordFromDictionary
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          description: Unique identifier of the dictionary word
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Word successfully removed from dictionary
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dictionary/check/{word}:
+    get:
+      tags:
+        - dictionary
+      summary: Check if word exists in dictionary
+      description: Check whether a specific word is already in the user's dictionary
+      operationId: checkWordInDictionary
+      parameters:
+        - name: word
+          in: path
+          required: true
+          description: Word to check
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                    description: Whether the word exists in the dictionary
+                  word:
+                    type: string
+                    description: The word that was checked (normalized)
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Word definition lookup endpoints
+  /definitions/{word}:
+    get:
+      tags:
+        - definitions
+      summary: Get word definition
+      description: |
+        Look up the definition of a word using an external dictionary API.
+        This endpoint will be used when a user double-clicks a word while reading.
+      operationId: getWordDefinition
+      parameters:
+        - name: word
+          in: path
+          required: true
+          description: Word to look up
+          schema:
+            type: string
+            example: "ephemeral"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordDefinition'
+        '404':
+          description: Word not found in dictionary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Not Found"
+                message: "Definition not found for the word 'xyzabc'"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /definitions/{word}/pronounce:
+    get:
+      tags:
+        - definitions
+      summary: Get word pronunciation audio
+      description: |
+        Get audio file URL or data for word pronunciation.
+        Returns URL to pronunciation audio file or base64 encoded audio data.
+      operationId: getWordPronunciation
+      parameters:
+        - name: word
+          in: path
+          required: true
+          description: Word to pronounce
+          schema:
+            type: string
+            example: "pronunciation"
+        - name: voice
+          in: query
+          description: Voice/accent preference
+          schema:
+            type: string
+            enum: [us, uk, au]
+            default: us
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  word:
+                    type: string
+                    example: "pronunciation"
+                  audioUrl:
+                    type: string
+                    format: uri
+                    description: URL to the pronunciation audio file
+                    example: "https://api.greatreading.app/audio/pronunciation_us.mp3"
+                  phonetic:
+                    type: string
+                    description: Phonetic spelling of the word
+                    example: "/prəˌnʌnsiˈeɪʃn/"
+        '404':
+          description: Pronunciation not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Settings endpoints
+  /settings:
+    get:
+      tags:
+        - settings
+      summary: Get user settings
+      description: Retrieve all user settings and preferences
+      operationId: getSettings
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - settings
+      summary: Update user settings
+      description: Update one or more user settings
+      operationId: updateSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timerDuration:
+                  type: integer
+                  minimum: 1
+                  maximum: 120
+                  description: Default timer duration in minutes
+                  example: 5
+                readingMode:
+                  type: string
+                  enum: [page, sentence]
+                  description: Preferred reading mode
+                  example: "page"
+      responses:
+        '200':
+          description: Settings successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - name
+        - content
+        - currentPage
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the book
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: Name of the book (filename without extension)
+          example: "The Great Gatsby"
+        content:
+          type: array
+          items:
+            type: string
+          description: Array of pages, where each page is a string of text content
+          example:
+            - "It was the best of times, it was the worst of times..."
+            - "Call me Ishmael. Some years ago..."
+        currentPage:
+          type: integer
+          minimum: 0
+          description: Current page number (0-indexed)
+          example: 5
+        totalPages:
+          type: integer
+          minimum: 1
+          description: Total number of pages in the book
+          example: 150
+        fileSize:
+          type: integer
+          description: Original file size in bytes
+          example: 1048576
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the book was uploaded
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the book was last updated
+          example: "2024-01-16T14:20:00Z"
+
+    DictionaryWord:
+      type: object
+      required:
+        - id
+        - word
+        - definition
+        - addedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the dictionary entry
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        word:
+          type: string
+          description: The word (stored in lowercase)
+          example: "ephemeral"
+        definition:
+          type: string
+          description: Definition of the word
+          example: "Lasting for a very short time"
+        context:
+          type: string
+          nullable: true
+          description: Optional sentence context where the word was encountered
+          example: "The beauty of the sunset was ephemeral, fading within minutes."
+        addedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the word was added to dictionary
+          example: "2024-01-15T16:45:00Z"
+
+    WordDefinition:
+      type: object
+      required:
+        - word
+        - definitions
+      properties:
+        word:
+          type: string
+          description: The word being defined
+          example: "serendipity"
+        definitions:
+          type: array
+          items:
+            type: object
+            properties:
+              partOfSpeech:
+                type: string
+                description: Part of speech (noun, verb, adjective, etc.)
+                example: "noun"
+              definition:
+                type: string
+                description: Definition text
+                example: "The occurrence of events by chance in a happy or beneficial way"
+              example:
+                type: string
+                nullable: true
+                description: Example sentence using the word
+                example: "A fortunate stroke of serendipity brought the two old friends together"
+        phonetic:
+          type: string
+          nullable: true
+          description: Phonetic pronunciation
+          example: "/ˌserənˈdɪpɪti/"
+        audioUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to pronunciation audio
+          example: "https://api.greatreading.app/audio/serendipity.mp3"
+
+    UserSettings:
+      type: object
+      required:
+        - userId
+        - timerDuration
+        - readingMode
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+          example: "789e0123-e89b-12d3-a456-426614174000"
+        timerDuration:
+          type: integer
+          minimum: 1
+          maximum: 120
+          description: Default timer duration in minutes
+          example: 5
+          default: 5
+        readingMode:
+          type: string
+          enum: [page, sentence]
+          description: Preferred reading mode
+          example: "page"
+          default: "page"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when settings were last updated
+          example: "2024-01-15T12:00:00Z"
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "Bad Request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The provided file is not a valid PDF"
+        details:
+          type: object
+          nullable: true
+          description: Additional error details
+          additionalProperties: true
+
+  responses:
+    BadRequestError:
+      description: Bad request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Bad Request"
+            message: "Invalid input parameters"
+
+    UnauthorizedError:
+      description: Unauthorized - Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Unauthorized"
+            message: "Authentication token is missing or invalid"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Not Found"
+            message: "The requested resource was not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal Server Error"
+            message: "An unexpected error occurred"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security:
+  - BearerAuth: []
