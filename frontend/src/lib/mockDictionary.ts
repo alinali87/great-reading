@@ -1,0 +1,163 @@
+// Mock dictionary API - in the future this would call a real dictionary API
+const mockDefinitions: Record<string, string> = {
+  // Common words with definitions
+  the: "used to refer to a person, thing, or idea that has been previously mentioned or is understood",
+  a: "used before a noun to refer to a single person or thing",
+  is: "third person singular present of 'be'",
+  are: "second person singular and plural present of 'be'",
+  was: "first and third person singular past of 'be'",
+  were: "second person singular and plural past of 'be'",
+  be: "to exist or live",
+  have: "to possess, own, or hold",
+  has: "third person singular present of 'have'",
+  had: "past and past participle of 'have'",
+  do: "to perform or execute an action",
+  does: "third person singular present of 'do'",
+  did: "past of 'do'",
+  will: "expressing the future tense",
+  would: "past of 'will', used for conditional statements",
+  can: "to be able to",
+  could: "past of 'can', also used for possibility",
+  should: "used to indicate obligation or expectation",
+  may: "expressing possibility or permission",
+  might: "past of 'may', also expressing possibility",
+  must: "expressing necessity or obligation",
+  
+  // More vocabulary
+  book: "a written or printed work consisting of pages bound together",
+  read: "to look at and comprehend the meaning of written or printed matter",
+  reading: "the action or skill of reading written or printed matter",
+  word: "a single distinct meaningful element of speech or writing",
+  sentence: "a set of words that is complete in itself",
+  page: "one side of a sheet of paper in a book or magazine",
+  chapter: "a main division of a book",
+  story: "an account of imaginary or real people and events",
+  character: "a person in a novel, play, or movie",
+  plot: "the main events of a play, novel, or movie",
+  setting: "the place or type of surroundings where something is positioned",
+  theme: "the subject of a talk, piece of writing, or work of art",
+  author: "a writer of a book, article, or report",
+  language: "the method of human communication using words",
+  english: "relating to England or its people or language",
+  learn: "to gain knowledge or skill by studying, practicing, or being taught",
+  study: "the devotion of time and attention to acquiring knowledge",
+  understand: "to perceive the intended meaning of words or a speaker",
+  vocabulary: "the body of words used in a particular language",
+  grammar: "the whole system and structure of a language",
+  pronunciation: "the way in which a word is pronounced",
+  meaning: "what is meant by a word, text, concept, or action",
+  definition: "a statement of the exact meaning of a word",
+  dictionary: "a book that lists words and gives their meanings",
+  translate: "express the sense of words in another language",
+  practice: "repeated exercise in an activity to improve skill",
+  improve: "to make or become better",
+  progress: "forward or onward movement toward a destination",
+  fluent: "able to speak or write a language easily and accurately",
+  native: "associated with the country or area where a person was born",
+  foreign: "of or from a country other than one's own",
+  
+  // Time-related
+  time: "the indefinite continued progress of existence",
+  minute: "a period of time equal to sixty seconds",
+  timer: "a device that indicates when a set period has elapsed",
+  
+  // Common verbs
+  go: "to move or travel from one place to another",
+  come: "to move toward the speaker or a specified place",
+  make: "to form by putting parts together or combining substances",
+  take: "to reach for and hold with one's hands",
+  get: "to come to have or hold; to receive",
+  give: "to freely transfer the possession of something to someone",
+  know: "to be aware of through observation or information",
+  think: "to use one's mind actively to form ideas",
+  see: "to perceive with the eyes",
+  look: "to direct one's gaze in a specified direction",
+  want: "to have a desire to possess or do something",
+  use: "to take, hold, or deploy something as a means of accomplishing a purpose",
+  find: "to discover or perceive by chance or unexpectedly",
+  tell: "to communicate information or facts to someone",
+  ask: "to say something in order to obtain an answer or information",
+  work: "activity involving mental or physical effort",
+  seem: "to give the impression of being something",
+  feel: "to be aware of through physical sensation",
+  try: "to make an attempt or effort to do something",
+  leave: "to go away from",
+  call: "to cry out to someone in order to summon them",
+  keep: "to have or retain possession of",
+  let: "to not prevent or forbid; to allow",
+  begin: "to start; to perform the first part of an action",
+  help: "to make it easier for someone to do something",
+  show: "to make visible or display",
+  hear: "to perceive with the ear the sound made by someone or something",
+  play: "to engage in activity for enjoyment and recreation",
+  run: "to move at a speed faster than a walk",
+  move: "to change position or place",
+  live: "to remain alive",
+  believe: "to accept something as true",
+  hold: "to grasp, carry, or support with one's hands",
+  bring: "to take or go with to a place",
+  happen: "to take place; to occur",
+  write: "to mark letters, words, or symbols on a surface",
+  provide: "to make available for use; to supply",
+  sit: "to adopt or be in a position in which one's weight is supported",
+  stand: "to have or maintain an upright position",
+  lose: "to be deprived of or cease to have something",
+  pay: "to give money due for work done or goods received",
+  meet: "to come into the presence of someone",
+  include: "to comprise or contain as part of a whole",
+  continue: "to persist in an activity or process",
+  set: "to put, lay, or stand something in a specified place",
+  change: "to make or become different",
+  lead: "to cause to go with one by holding or guiding",
+  watch: "to look at or observe attentively over a period of time",
+  follow: "to move behind someone or something and go where they go",
+  stop: "to cease moving or operating",
+  create: "to bring something into existence",
+  speak: "to say words aloud; to talk",
+  allow: "to give permission for something to happen",
+  add: "to join to something so as to increase the size or amount",
+  spend: "to pay out money in buying or hiring goods or services",
+  grow: "to undergo natural development by increasing in size",
+  open: "to move a door, window, or lid to allow access",
+  walk: "to move at a regular pace by lifting and setting down each foot",
+  win: "to be successful or victorious in a contest or conflict",
+  offer: "to present something for acceptance or rejection",
+  remember: "to have in or be able to bring to one's mind an awareness",
+  love: "an intense feeling of deep affection",
+  consider: "to think carefully about something",
+  appear: "to come into sight; to become visible",
+  buy: "to obtain in exchange for payment",
+  wait: "to stay where one is until a particular time or event",
+  serve: "to perform duties or services for someone",
+  die: "to stop living",
+  send: "to cause to go or be taken to a particular destination",
+  expect: "to regard something as likely to happen",
+  build: "to construct by putting parts together",
+  stay: "to remain in the same place",
+  fall: "to move downward typically rapidly and freely",
+  cut: "to make an opening or wound in with a sharp tool",
+  reach: "to stretch out an arm in order to touch or grasp something",
+  kill: "to cause the death of a person or animal",
+  remain: "to continue to exist, especially after other things have ceased",
+};
+
+export function getWordDefinition(word: string): string {
+  const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
+  
+  if (mockDefinitions[cleanWord]) {
+    return mockDefinitions[cleanWord];
+  }
+  
+  // Generate a mock definition for unknown words
+  return `A word commonly used in English. (Definition for "${cleanWord}" will be available when connected to a dictionary API)`;
+}
+
+export function pronounceWord(word: string): void {
+  // Use the Web Speech API for pronunciation
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
+  }
+}
