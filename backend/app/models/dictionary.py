@@ -6,14 +6,12 @@ from app.db.database import Base
 
 
 class DictionaryWord(Base):
-
     __tablename__ = "dictionary_words"
 
     id = Column(String, primary_key=True, index=True)
     user_id = Column(
         String, index=True, nullable=False
     )  # For future multi-user support
-    user_id = Column(String, index=True, nullable=False)  # For future multi-user support
     word = Column(String, nullable=False, index=True)
     definition = Column(Text, nullable=False)
     context = Column(Text, nullable=True)

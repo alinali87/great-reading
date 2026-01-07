@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DictionaryWordBase(BaseModel):
@@ -21,10 +21,9 @@ class DictionaryWordResponse(DictionaryWordBase):
 
     id: str
     context: str | None = None
-    added_at: datetime
+    added_at: datetime = Field(..., serialization_alias="addedAt")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class DictionaryListResponse(BaseModel):
@@ -46,9 +45,11 @@ class WordExistsResponse(BaseModel):
 class WordDefinitionItem(BaseModel):
     """Schema for a single word definition"""
 
-    part_of_speech: str
+    part_of_speech: str = Field(..., serialization_alias="partOfSpeech")
     definition: str
     example: str | None = None
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class WordDefinitionResponse(BaseModel):
@@ -57,12 +58,16 @@ class WordDefinitionResponse(BaseModel):
     word: str
     definitions: list[WordDefinitionItem]
     phonetic: str | None = None
-    audio_url: str | None = None
+    audio_url: str | None = Field(None, serialization_alias="audioUrl")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class WordPronunciationResponse(BaseModel):
     """Schema for word pronunciation response"""
 
     word: str
-    audio_url: str
+    audio_url: str = Field(..., serialization_alias="audioUrl")
     phonetic: str | None = None
+
+    model_config = ConfigDict(populate_by_name=True)
