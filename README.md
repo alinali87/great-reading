@@ -32,9 +32,15 @@ An English language learning reading application that helps you focus on reading
 ## Quick Start
 
 ### Prerequisites
+
+**For local development:**
 - Node.js 18+ and npm
 - Python 3.11+
 - uv (Python package manager)
+
+**For Docker deployment:**
+- Docker Desktop or Docker Engine
+- docker-compose
 
 ### Installation
 
@@ -105,6 +111,80 @@ make test-frontend
 - ✅ Backend: 47 tests
 - ✅ Frontend: 38 tests
 
+## Docker Deployment
+
+### Quick Start with Docker
+
+```bash
+# Build and start all services (PostgreSQL, backend, frontend)
+make docker-up
+
+# View logs
+make docker-logs
+
+# Stop all services
+make docker-down
+
+# Clean up containers, volumes, and images
+make docker-clean
+```
+
+### Docker Services
+
+The application runs three services:
+- **PostgreSQL** - Database (port 5432)
+- **Backend API** - FastAPI server (port 3000)
+- **Frontend** - nginx serving React app (port 8080)
+
+Once started, access:
+- Frontend: http://localhost:8080
+- Backend API: http://localhost:3000/api/v1
+- API Docs: http://localhost:3000/api/v1/docs
+
+### Docker Environment Configuration
+
+1. Copy the example environment file:
+```bash
+cp .env.docker.example .env.docker
+```
+
+2. Edit `.env.docker` with your settings:
+```env
+# PostgreSQL
+POSTGRES_PASSWORD=your-secure-password
+
+# Backend
+SECRET_KEY=your-secret-key-min-32-chars-change-in-production
+DEV_MODE=false  # Set to true for 5-second timer
+```
+
+### Docker Commands
+
+```bash
+# Build images
+make docker-build
+
+# Start services in background
+make docker-up
+
+# View logs (follow mode)
+make docker-logs
+
+# Stop services
+make docker-down
+
+# Remove everything (containers, volumes, images)
+make docker-clean
+```
+
+### Production Deployment
+
+For production deployments, see [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on:
+- PostgreSQL configuration
+- Environment variables
+- Security best practices
+- Scaling considerations
+
 ## Project Structure
 
 ```
@@ -135,13 +215,20 @@ See all commands:
 make help
 ```
 
-Key commands:
+**Development:**
 - `make dev` - Start in dev mode (5-second timer)
 - `make start` - Start both servers (alias for dev)
 - `make stop` - Stop all servers
 - `make test` - Run all tests
 - `make install` - Install all dependencies
 - `make clean` - Clean up and stop servers
+
+**Docker:**
+- `make docker-up` - Start all services with Docker Compose
+- `make docker-down` - Stop all Docker containers
+- `make docker-build` - Build Docker images
+- `make docker-logs` - View Docker logs
+- `make docker-clean` - Remove containers, volumes, and images
 
 ## Environment Configuration
 

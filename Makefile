@@ -1,4 +1,4 @@
-.PHONY: help start stop test test-backend test-frontend install install-backend install-frontend clean
+.PHONY: help start stop test test-backend test-frontend install install-backend install-frontend clean docker-up docker-down docker-build docker-logs docker-clean
 
 # Default target
 help:
@@ -24,6 +24,13 @@ help:
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean              - Stop servers and clean build artifacts"
+	@echo ""
+	@echo "Docker Commands:"
+	@echo "  make docker-up          - Start all services with Docker Compose"
+	@echo "  make docker-down        - Stop all Docker containers"
+	@echo "  make docker-build       - Build Docker images"
+	@echo "  make docker-logs        - View Docker logs"
+	@echo "  make docker-clean       - Remove containers, volumes, and images"
 	@echo ""
 
 # Start app in dev mode (5-second timer)
@@ -115,3 +122,37 @@ clean: stop
 	@echo "Cleaning up..."
 	@rm -f backend.log frontend.log
 	@echo "✅ Cleanup complete!"
+
+# Docker commands
+docker-up:
+	@echo "Starting all services with Docker Compose..."
+	@if [ ! -f .env.docker ]; then \
+		echo "⚠️  Warning: .env.docker not found, using .env.docker.example"; \
+		cp .env.docker.example .env.docker; \
+	fi
+	@docker-compose --env-file .env.docker up -d
+	@echo ""
+	@echo "✅ Services started!"
+	@echo "   Frontend: http://localhost:8080"
+	@echo "   Backend:  http://localhost:3000 (via nginx proxy)"
+	@echo ""
+	@echo "Run 'make docker-logs' to view logs"
+
+docker-down:
+	@echo "Stopping all Docker containers..."
+	@docker-compose down
+	@echo "✅ All containers stopped"
+
+docker-build:
+	@echo "Building Docker images..."
+	@docker-compose build
+	@echo "✅ Docker images built"
+
+docker-logs:
+	@echo "Viewing Docker logs (Ctrl+C to exit)..."
+	@docker-compose logs -f
+
+docker-clean:
+	@echo "Removing containers, volumes, and images..."
+	@docker-compose down -v --rmi all
+	@echo "✅ Docker cleanup complete"
