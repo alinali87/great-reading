@@ -25,26 +25,17 @@ help:
 	@echo "  make clean              - Stop servers and clean build artifacts"
 	@echo ""
 
-# Start both servers in the background
+# Start both servers using concurrently
 start:
 	@echo "Starting GreatReading application..."
-	@echo "Starting backend on http://localhost:3000"
-	@cd backend && uv run uvicorn app.main:app --reload --port 3000 > ../backend.log 2>&1 & echo $$! > ../backend.pid
-	@sleep 2
-	@echo "Starting frontend on http://localhost:8080"
-	@cd frontend && npm run dev > ../frontend.log 2>&1 & echo $$! > ../frontend.pid
-	@sleep 2
 	@echo ""
-	@echo "✅ Application started successfully!"
 	@echo "   Backend:  http://localhost:3000"
 	@echo "   Frontend: http://localhost:8080"
 	@echo "   API Docs: http://localhost:3000/api/v1/docs"
 	@echo ""
-	@echo "Logs:"
-	@echo "   Backend:  tail -f backend.log"
-	@echo "   Frontend: tail -f frontend.log"
+	@echo "Press Ctrl+C to stop both servers"
 	@echo ""
-	@echo "To stop: make stop"
+	@npm run dev
 
 # Start only backend
 start-backend:
@@ -83,14 +74,7 @@ stop:
 # Run all tests
 test:
 	@echo "Running all tests..."
-	@echo ""
-	@echo "=== Backend Tests ==="
-	@cd backend && uv run pytest
-	@echo ""
-	@echo "=== Frontend Tests ==="
-	@cd frontend && npm test -- --run
-	@echo ""
-	@echo "✅ All tests completed!"
+	@npm run test
 
 # Run backend tests only
 test-backend:
@@ -105,12 +89,7 @@ test-frontend:
 # Install all dependencies
 install:
 	@echo "Installing all dependencies..."
-	@echo ""
-	@echo "=== Backend Dependencies ==="
-	@cd backend && uv sync
-	@echo ""
-	@echo "=== Frontend Dependencies ==="
-	@cd frontend && npm install
+	@npm run install:all
 	@echo ""
 	@echo "✅ All dependencies installed!"
 

@@ -12,7 +12,9 @@ lerna-debug.log*
 backend.log
 frontend.log
 
+# Node modules
 node_modules
+package-lock.json
 dist
 dist-ssr
 *.local
