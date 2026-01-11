@@ -1,76 +1,177 @@
-# Welcome to your Lovable project
+# GreatReading
 
-## Project info
+An English language learning reading application that helps you focus on reading with built-in timers, personal dictionary, and progress tracking.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **PDF Book Upload** - Upload and read PDF books
+- **Focused Reading** - 5/10/15 minute reading timers
+- **Personal Dictionary** - Save words with definitions and context
+- **Reading Modes** - Page view or sentence-by-sentence reading
+- **Progress Tracking** - Automatically save your reading position
+- **Word Definitions** - Look up words with external dictionary API
+- **Pronunciation** - Audio pronunciation for words
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+**Frontend:**
+- React 18 + TypeScript
+- Vite
+- TailwindCSS + shadcn-ui
+- React Query for data fetching
+- React Router for navigation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+**Backend:**
+- FastAPI (Python)
+- SQLAlchemy + SQLite
+- uvicorn ASGI server
+- pypdf for PDF processing
+- Pydantic for validation
 
-Changes made via Lovable will be committed automatically to this repo.
+## Quick Start
 
-**Use your preferred IDE**
+### Prerequisites
+- Node.js 18+ and npm
+- Python 3.11+
+- uv (Python package manager)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Install all dependencies
+npm run install:all
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Navigate to the frontend directory.
-cd frontend
-
-# Step 4: Install the necessary dependencies.
-npm i
-
-# Step 5: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Or install separately
+cd backend && uv sync
+cd frontend && npm install
 ```
 
-**Edit a file directly in GitHub**
+### Development
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+**Start both servers (recommended):**
+```bash
+npm run dev
+# or
+make start
+```
 
-**Use GitHub Codespaces**
+This starts:
+- Backend on http://localhost:3000
+- Frontend on http://localhost:8080
+- API Docs on http://localhost:3000/api/v1/docs
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+**Start servers separately:**
+```bash
+# Backend only
+npm run dev:backend
+# or
+make start-backend
 
-## What technologies are used for this project?
+# Frontend only
+npm run dev:frontend
+# or
+make start-frontend
+```
 
-This project is built with:
+**Stop servers:**
+Press `Ctrl+C` in the terminal, or use `make stop`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Testing
 
-## How can I deploy this project?
+```bash
+# Run all tests
+npm run test
+# or
+make test
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+# Backend tests only
+npm run test:backend
+# or
+make test-backend
 
-## Can I connect a custom domain to my Lovable project?
+# Frontend tests only
+npm run test:frontend
+# or
+make test-frontend
+```
 
-Yes, you can!
+**Test Results:**
+- ✅ Backend: 47 tests
+- ✅ Frontend: 38 tests
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Project Structure
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```
+great-reading/
+├── backend/          # FastAPI backend
+│   ├── app/
+│   │   ├── api/      # API endpoints
+│   │   ├── models/   # Database models
+│   │   ├── schemas/  # Pydantic schemas
+│   │   └── services/ # Business logic
+│   └── tests/        # Backend tests
+├── frontend/         # React frontend
+│   ├── src/
+│   │   ├── components/  # React components
+│   │   ├── hooks/       # Custom hooks
+│   │   ├── pages/       # Page components
+│   │   ├── services/    # API client services
+│   │   └── types/       # TypeScript types
+│   └── __tests__/      # Frontend tests
+├── openapi.yaml      # API specification
+└── Makefile         # Development commands
+```
+
+## Available Commands
+
+See all commands:
+```bash
+make help
+```
+
+Key commands:
+- `make start` - Start both servers
+- `make stop` - Stop all servers
+- `make test` - Run all tests
+- `make install` - Install all dependencies
+- `make clean` - Clean up and stop servers
+
+## Environment Configuration
+
+**Frontend** (`frontend/.env.local`):
+```
+VITE_API_URL=http://localhost:3000/api/v1
+```
+
+**Backend** (`backend/.env`):
+```
+DATABASE_URL=sqlite:///./greatreading.db
+SECRET_KEY=your-secret-key
+BACKEND_CORS_ORIGINS=http://localhost:8080
+```
+
+## API Documentation
+
+Interactive API docs available at:
+- Swagger UI: http://localhost:3000/api/v1/docs
+- ReDoc: http://localhost:3000/api/v1/redoc
+- OpenAPI JSON: http://localhost:3000/api/v1/openapi.json
+
+Full specification: `openapi.yaml`
+
+## Development Workflow
+
+1. Start the development servers: `npm run dev`
+2. Make changes to frontend or backend code
+3. Both servers auto-reload on file changes
+4. Write tests for new features
+5. Run tests: `npm run test`
+6. Commit changes following conventional commits
+
+## Contributing
+
+Follow the guidelines in `AGENTS.md` for development best practices.
+
+## License
+
+MIT
