@@ -1,4 +1,4 @@
-export type ReadingMode = 'page' | 'sentence';
+export type ReadingMode = "page" | "sentence";
 
 export interface DictionaryWord {
   id: string;
@@ -15,6 +15,7 @@ export interface WordContextMenuData {
 }
 
 export interface BookData {
+  id?: string;
   name: string;
   content: string[];
   currentPage: number;

@@ -1,17 +1,31 @@
-import { useState, useCallback } from 'react';
-import { Upload, BookOpen, Clock, BookMarked, Loader2, Trash2, Volume2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import { BookData, DictionaryWord } from '@/types/reading';
-import { pronounceWord } from '@/lib/mockDictionary';
+import { useState, useCallback } from "react";
+import {
+  Upload,
+  BookOpen,
+  Clock,
+  BookMarked,
+  Loader2,
+  Trash2,
+  Volume2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { BookData, DictionaryWord } from "@/types/reading";
+import { pronounceWord } from "@/lib/mockDictionary";
 
 interface MainPageProps {
   onOpenBook: (book: BookData) => void;
   books: BookData[];
   onAddBook: (book: BookData) => void;
-  onDeleteBook: (name: string) => void;
+  onUploadFile?: (file: File) => Promise<void>;
+  onDeleteBook: (bookId: string) => void;
   dictionary: DictionaryWord[];
   onRemoveWord: (id: string) => void;
   timerDuration: number;
@@ -22,6 +36,7 @@ export function MainPage({
   onOpenBook,
   books,
   onAddBook,
+  onUploadFile,
   onDeleteBook,
   dictionary,
   onRemoveWord,
@@ -36,7 +51,7 @@ export function MainPage({
 
   const extractTextFromPdf = async (file: File): Promise<string[]> => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     const sampleContent = [
       `The sun was setting over the quiet village, casting long shadows across the cobblestone streets. Mary stood at her window, watching the last rays of light dance upon the rooftops. She had lived in this house for thirty years, yet each sunset seemed to bring new colors she had never noticed before.
 
@@ -81,24 +96,30 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
   };
 
   const handleFile = async (file: File) => {
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF file');
+    if (file.type !== "application/pdf") {
+      alert("Please upload a PDF file");
       return;
     }
 
     setIsProcessing(true);
     try {
-      const content = await extractTextFromPdf(file);
-      const newBook: BookData = {
-        name: file.name.replace('.pdf', ''),
-        content,
-        currentPage: 0,
-      };
-      onAddBook(newBook);
-      onOpenBook(newBook);
+      if (onUploadFile) {
+        // Use backend API to upload
+        await onUploadFile(file);
+      } else {
+        // Fallback to local processing (for backward compatibility)
+        const content = await extractTextFromPdf(file);
+        const newBook: BookData = {
+          name: file.name.replace(".pdf", ""),
+          content,
+          currentPage: 0,
+        };
+        onAddBook(newBook);
+        onOpenBook(newBook);
+      }
     } catch (error) {
-      console.error('Error processing PDF:', error);
-      alert('Error processing PDF. Please try again.');
+      console.error("Error processing PDF:", error);
+      alert("Error processing PDF. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -152,11 +173,11 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            'group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 transition-all',
+            "group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 transition-all",
             isDragging
-              ? 'border-primary bg-primary/5'
-              : 'border-border hover:border-primary/50 hover:bg-muted/50',
-            isProcessing && 'pointer-events-none opacity-70'
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/50 hover:bg-muted/50",
+            isProcessing && "pointer-events-none opacity-70",
           )}
         >
           <input
@@ -169,8 +190,10 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
 
           <div
             className={cn(
-              'mb-4 rounded-full p-4 transition-colors',
-              isDragging ? 'bg-primary/10' : 'bg-muted group-hover:bg-primary/10'
+              "mb-4 rounded-full p-4 transition-colors",
+              isDragging
+                ? "bg-primary/10"
+                : "bg-muted group-hover:bg-primary/10",
             )}
           >
             {isProcessing ? (
@@ -178,18 +201,20 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
             ) : (
               <Upload
                 className={cn(
-                  'h-10 w-10 transition-colors',
-                  isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                  "h-10 w-10 transition-colors",
+                  isDragging
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-primary",
                 )}
               />
             )}
           </div>
 
           <p className="mb-2 text-lg font-medium text-foreground">
-            {isProcessing ? 'Processing your book...' : 'Drop your PDF here'}
+            {isProcessing ? "Processing your book..." : "Drop your PDF here"}
           </p>
           <p className="text-sm text-muted-foreground">
-            {isProcessing ? 'This may take a moment' : 'or click to browse'}
+            {isProcessing ? "This may take a moment" : "or click to browse"}
           </p>
         </label>
 
@@ -203,7 +228,9 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
             <BookOpen className="h-6 w-6 text-primary" />
             <span className="text-sm font-medium">Books</span>
             {books.length > 0 && (
-              <span className="text-xs text-muted-foreground">{books.length}</span>
+              <span className="text-xs text-muted-foreground">
+                {books.length}
+              </span>
             )}
           </Button>
           <Button
@@ -213,7 +240,9 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
           >
             <Clock className="h-6 w-6 text-primary" />
             <span className="text-sm font-medium">Timer</span>
-            <span className="text-xs text-muted-foreground">{timerDuration} min</span>
+            <span className="text-xs text-muted-foreground">
+              {timerDuration} min
+            </span>
           </Button>
           <Button
             variant="outline"
@@ -223,7 +252,9 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
             <BookMarked className="h-6 w-6 text-primary" />
             <span className="text-sm font-medium">Dictionary</span>
             {dictionary.length > 0 && (
-              <span className="text-xs text-muted-foreground">{dictionary.length}</span>
+              <span className="text-xs text-muted-foreground">
+                {dictionary.length}
+              </span>
             )}
           </Button>
         </div>
@@ -243,7 +274,9 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
                 <p className="text-muted-foreground">No books yet</p>
-                <p className="text-sm text-muted-foreground">Upload a PDF to get started</p>
+                <p className="text-sm text-muted-foreground">
+                  Upload a PDF to get started
+                </p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -271,7 +304,7 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 opacity-0 group-hover:opacity-100"
-                      onClick={() => onDeleteBook(book.name)}
+                      onClick={() => onDeleteBook(book.id || book.name)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -300,7 +333,7 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
               {timerOptions.map((mins) => (
                 <Button
                   key={mins}
-                  variant={timerDuration === mins ? 'default' : 'outline'}
+                  variant={timerDuration === mins ? "default" : "outline"}
                   className="flex-1"
                   onClick={() => onTimerDurationChange(mins)}
                 >
