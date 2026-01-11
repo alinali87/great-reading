@@ -7,6 +7,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Makefile generated files
+*.pid
+backend.log
+frontend.log
+
 node_modules
 dist
 dist-ssr
