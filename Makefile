@@ -6,6 +6,7 @@ help:
 	@echo "========================================"
 	@echo ""
 	@echo "App Management:"
+	@echo "  make dev                - Start app in dev mode (5-second timer)"
 	@echo "  make start              - Start both backend and frontend servers"
 	@echo "  make stop               - Stop all running servers"
 	@echo "  make start-backend      - Start only the backend server"
@@ -25,10 +26,11 @@ help:
 	@echo "  make clean              - Stop servers and clean build artifacts"
 	@echo ""
 
-# Start both servers using concurrently
-start:
-	@echo "Starting GreatReading application..."
+# Start app in dev mode (5-second timer)
+dev:
+	@echo "Starting GreatReading in DEV MODE..."
 	@echo ""
+	@echo "   ⚡ Dev Mode: Timer is 5 seconds (not minutes!)"
 	@echo "   Backend:  http://localhost:3000"
 	@echo "   Frontend: http://localhost:8080"
 	@echo "   API Docs: http://localhost:3000/api/v1/docs"
@@ -36,6 +38,9 @@ start:
 	@echo "Press Ctrl+C to stop both servers"
 	@echo ""
 	@npm run dev
+
+# Start both servers using concurrently (alias for dev)
+start: dev
 
 # Start only backend
 start-backend:
