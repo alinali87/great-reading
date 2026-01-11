@@ -29,6 +29,27 @@ An English language learning reading application that helps you focus on reading
 - Pydantic for validation
 - psycopg2 for PostgreSQL
 
+## Deployment
+
+### Cloud Deployment (Render)
+
+Deploy to production with one click using Render:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+Or follow the detailed guide: [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
+
+**What gets deployed:**
+- PostgreSQL database (free tier)
+- FastAPI backend (starter plan - $7/month)
+- React frontend (free tier)
+
+**Total cost**: ~$7-14/month for production-ready setup
+
+### Docker Deployment
+
+See [Docker Deployment](#docker-deployment) section below for running locally with Docker Compose.
+
 ## Quick Start
 
 ### Prerequisites
@@ -249,7 +270,9 @@ SECRET_KEY=your-secret-key
 BACKEND_CORS_ORIGINS=http://localhost:8080
 ```
 
-For production deployment with PostgreSQL, see [DEPLOYMENT.md](DEPLOYMENT.md)
+For production deployment options:
+- **Cloud (Recommended)**: See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) for deploying to Render
+- **Self-hosted**: See [DEPLOYMENT.md](DEPLOYMENT.md) for VPS deployment with PostgreSQL
 
 ## API Documentation
 
