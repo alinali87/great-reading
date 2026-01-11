@@ -26,8 +26,6 @@ services:
   - type: web
     name: greatreading-frontend
     runtime: static
-    plan: starter
-    region: oregon
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: frontend/dist
     routes:
