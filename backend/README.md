@@ -15,10 +15,11 @@ Backend API for GreatReading - An English language learning reading application.
 
 - **FastAPI**: Modern, fast web framework for building APIs
 - **SQLAlchemy**: SQL toolkit and ORM
-- **SQLite**: Database (can be easily switched to PostgreSQL/MySQL)
+- **SQLite/PostgreSQL**: Database (SQLite for development, PostgreSQL for production)
 - **pypdf**: PDF text extraction
 - **Pydantic**: Data validation using Python type hints
 - **uvicorn**: ASGI server
+- **psycopg2-binary**: PostgreSQL adapter for Python
 
 ## Installation
 

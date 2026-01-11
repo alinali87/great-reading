@@ -23,10 +23,11 @@ An English language learning reading application that helps you focus on reading
 
 **Backend:**
 - FastAPI (Python)
-- SQLAlchemy + SQLite
+- SQLAlchemy + SQLite (dev) / PostgreSQL (production)
 - uvicorn ASGI server
 - pypdf for PDF processing
 - Pydantic for validation
+- psycopg2 for PostgreSQL
 
 ## Quick Start
 
@@ -145,10 +146,17 @@ VITE_API_URL=http://localhost:3000/api/v1
 
 **Backend** (`backend/.env`):
 ```
+# Development (SQLite)
 DATABASE_URL=sqlite:///./greatreading.db
+
+# Production (PostgreSQL)
+# DATABASE_URL=postgresql://user:password@localhost:5432/greatreading
+
 SECRET_KEY=your-secret-key
 BACKEND_CORS_ORIGINS=http://localhost:8080
 ```
+
+For production deployment with PostgreSQL, see [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## API Documentation
 
