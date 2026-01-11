@@ -10,7 +10,7 @@ services:
     healthCheckPath: /api/v1/docs
     envVars:
       - key: PYTHON_VERSION
-        value: "3.11"
+        value: "3.11.0"
       - key: DATABASE_URL
         fromDatabase:
           name: greatreading-db
