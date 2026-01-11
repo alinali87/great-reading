@@ -49,12 +49,17 @@ cd frontend && npm install
 
 ### Development
 
-**Start both servers (recommended):**
+**Start in dev mode (recommended for testing):**
 ```bash
-npm run dev
+make dev
 # or
-make start
+npm run dev
 ```
+
+⚡ **Dev Mode Features:**
+- Timer is **5 seconds** (not minutes!) for faster testing
+- Auto-reload on file changes
+- Perfect for development and testing
 
 This starts:
 - Backend on http://localhost:3000
@@ -131,7 +136,8 @@ make help
 ```
 
 Key commands:
-- `make start` - Start both servers
+- `make dev` - Start in dev mode (5-second timer)
+- `make start` - Start both servers (alias for dev)
 - `make stop` - Stop all servers
 - `make test` - Run all tests
 - `make install` - Install all dependencies
