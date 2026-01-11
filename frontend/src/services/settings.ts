@@ -1,11 +1,12 @@
-import { fetchAPI } from './api';
-import { ReadingMode } from '@/types/reading';
+import { fetchAPI } from "./api";
+import { ReadingMode } from "@/types/reading";
 
 export interface UserSettings {
   userId: string;
   timerDuration: number;
   readingMode: ReadingMode;
   updatedAt: string;
+  devMode: boolean;
 }
 
 export interface UpdateSettingsRequest {
@@ -15,15 +16,15 @@ export interface UpdateSettingsRequest {
 
 // Get user settings
 export async function getSettings(): Promise<UserSettings> {
-  return fetchAPI<UserSettings>('/settings');
+  return fetchAPI<UserSettings>("/settings");
 }
 
 // Update user settings
 export async function updateSettings(
-  settings: UpdateSettingsRequest
+  settings: UpdateSettingsRequest,
 ): Promise<UserSettings> {
-  return fetchAPI<UserSettings>('/settings', {
-    method: 'PATCH',
+  return fetchAPI<UserSettings>("/settings", {
+    method: "PATCH",
     body: JSON.stringify(settings),
   });
 }

@@ -41,7 +41,10 @@ const Index = () => {
     queryFn: getSettings,
   });
 
-  const timerDuration = settings?.timerDuration || 5;
+  // Use 5 seconds in dev mode, otherwise use user's setting (in minutes)
+  const timerDuration = settings?.devMode
+    ? 5 / 60 // 5 seconds converted to minutes for consistency
+    : settings?.timerDuration || 5;
 
   // Upload book mutation
   const uploadBookMutation = useMutation({

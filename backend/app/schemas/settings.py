@@ -29,5 +29,6 @@ class UserSettingsResponse(BaseModel):
     timer_duration: int = Field(..., ge=1, le=120, serialization_alias="timerDuration")
     reading_mode: ReadingMode = Field(..., serialization_alias="readingMode")
     updated_at: datetime = Field(..., serialization_alias="updatedAt")
+    dev_mode: bool = Field(default=False, serialization_alias="devMode")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

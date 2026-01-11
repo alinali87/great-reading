@@ -1,9 +1,12 @@
-from pydantic_settings import BaseSettings
 from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     """Application settings"""
+
+    # Environment
+    DEV_MODE: bool = Field(default=False)
 
     # API Settings
     API_V1_PREFIX: str = "/api/v1"

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings as app_settings
 from app.db.database import get_db
 from app.models.settings import ReadingMode, UserSettings
 from app.schemas.settings import UserSettingsResponse, UserSettingsUpdate
@@ -28,7 +29,11 @@ def get_settings(db: Session = Depends(get_db)):
         db.commit()
         db.refresh(settings)
 
-    return settings
+    # Add dev_mode from app settings
+    response = UserSettingsResponse.model_validate(settings)
+    response.dev_mode = app_settings.DEV_MODE
+
+    return response
 
 
 @router.patch("", response_model=UserSettingsResponse)
@@ -56,4 +61,8 @@ def update_settings(settings_update: UserSettingsUpdate, db: Session = Depends(g
     db.commit()
     db.refresh(settings)
 
-    return settings
+    # Add dev_mode from app settings
+    response = UserSettingsResponse.model_validate(settings)
+    response.dev_mode = app_settings.DEV_MODE
+
+    return response
