@@ -71,8 +71,24 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Trigger Render Deploy
+      - name: Deploy Backend to Render
+        env:
+          RENDER_BACKEND_DEPLOY_HOOK: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
         run: |
-          echo "Deployment is handled automatically by Render via GitHub integration"
-          echo "Render monitors the main branch and deploys on push"
-          echo "See: https://dashboard.render.com"
+          if [ -n "$RENDER_BACKEND_DEPLOY_HOOK" ]; then
+            curl -X POST "$RENDER_BACKEND_DEPLOY_HOOK"
+            echo "Backend deployment triggered"
+          else
+            echo "Warning: RENDER_BACKEND_DEPLOY_HOOK secret not set"
+          fi
+
+      - name: Deploy Frontend to Render
+        env:
+          RENDER_FRONTEND_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_FRONTEND_DEPLOY_HOOK" ]; then
+            curl -X POST "$RENDER_FRONTEND_DEPLOY_HOOK"
+            echo "Frontend deployment triggered"
+          else
+            echo "Warning: RENDER_FRONTEND_DEPLOY_HOOK secret not set"
+          fi
