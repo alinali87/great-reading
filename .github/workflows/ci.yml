@@ -58,7 +58,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test -- --run
+        run: npx vitest run
 
       - name: Build
         run: npm run build
