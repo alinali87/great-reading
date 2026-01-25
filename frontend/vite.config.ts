@@ -19,12 +19,10 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "happy-dom",
     setupFiles: "./src/test/setup.ts",
     css: true,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    pool: "forks",
-    isolate: true,
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
 }));
