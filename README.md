@@ -292,6 +292,22 @@ Full specification: `openapi.yaml`
 5. Run tests: `npm run test`
 6. Commit changes following conventional commits
 
+## AI-Assisted Development
+
+This project was developed using AI tools. See [AI_DEVELOPMENT.md](AI_DEVELOPMENT.md) for details on:
+- AI tools and workflow used
+- MCP (Model Context Protocol) integration
+- Specific AI contributions to the codebase
+
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and deployment:
+- **Backend Tests**: Python 3.11 with pytest
+- **Frontend Tests**: Node.js 18 with Vitest
+- **Deployment**: Automatic deployment to Render on successful tests
+
+See [.github/workflows/ci.yml](.github/workflows/ci.yml) for the pipeline configuration.
+
 ## Contributing
 
 Follow the guidelines in `AGENTS.md` for development best practices.
