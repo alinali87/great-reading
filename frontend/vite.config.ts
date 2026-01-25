@@ -22,5 +22,9 @@ export default defineConfig(({ mode }) => ({
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
     css: true,
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    pool: "forks",
+    isolate: true,
   },
 }));
