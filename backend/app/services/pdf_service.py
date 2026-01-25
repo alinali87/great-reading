@@ -29,16 +29,31 @@ class PDFService:
                 raise ValueError("PDF file has no pages")
 
             pages = []
-            for page in reader.pages:
+            empty_page_count = 0
+            for page_num, page in enumerate(reader.pages, 1):
                 text = page.extract_text()
-                if text.strip():  # Only add non-empty pages
+                if text and text.strip():
                     pages.append(text.strip())
+                else:
+                    # Include placeholder for pages with no extractable text
+                    # This preserves page numbers and indicates the issue to users
+                    pages.append(
+                        f"[Page {page_num}: No extractable text. "
+                        "This page may contain images or scanned content.]"
+                    )
+                    empty_page_count += 1
 
-            if not pages:
-                raise ValueError("PDF file contains no extractable text")
+            # If ALL pages are empty, the PDF likely needs OCR
+            if empty_page_count == len(pages):
+                raise ValueError(
+                    "PDF file contains no extractable text. "
+                    "This may be a scanned document that requires OCR processing."
+                )
 
             return pages
 
+        except ValueError:
+            raise
         except Exception as e:
             raise ValueError(f"Failed to process PDF: {str(e)}")
 
