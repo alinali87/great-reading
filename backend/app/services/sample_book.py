@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session
 from app.models.book import Book
 
 # Sample book content - a short story for new users
-SAMPLE_BOOK_NAME = "Welcome to ReadFlow"
+SAMPLE_BOOK_NAME = "Welcome to GreatReading"
 SAMPLE_BOOK_CONTENT = [
-    """Welcome to ReadFlow!
+    """Welcome to GreatReading!
 
 This is your personal reading companion designed to help you improve your English reading skills. Here's how to get the most out of this app.
 
-ReadFlow is built around the idea of focused reading sessions. Instead of reading for hours without direction, you'll read in timed intervals that help maintain concentration and retention.
+GreatReading is built around the idea of focused reading sessions. Instead of reading for hours without direction, you'll read in timed intervals that help maintain concentration and retention.
 
 Double-click on any word to see its definition and add it to your personal dictionary. This way, you build vocabulary as you read.""",
     """Getting Started with Reading

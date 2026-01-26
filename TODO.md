@@ -1,0 +1,3 @@
+- One click on a word -> pronounce
+- Float window "Word added to the dictionary" -> remove faster (<0.5 s?)
+- fix: words are merged together (line breaks in PDF are not preserved)

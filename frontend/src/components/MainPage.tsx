@@ -178,7 +178,7 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
           </div>
           <div className="text-center">
             <h1 className="mb-2 font-reading text-4xl font-bold text-foreground">
-              ReadFlow
+              GreatReading
             </h1>
             <p className="text-lg text-muted-foreground">
               Upload a book and start your focused reading session

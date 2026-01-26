@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Signup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -19,12 +19,12 @@ export default function Signup() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
@@ -32,10 +32,10 @@ export default function Signup() {
 
     try {
       await signup(email, password);
-      toast.success('Account created! Welcome to ReadFlow!');
-      navigate('/');
+      toast.success("Account created! Welcome to GreatReading!");
+      navigate("/");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Signup failed');
+      toast.error(error instanceof Error ? error.message : "Signup failed");
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +46,7 @@ export default function Signup() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="mb-2 font-reading text-4xl font-bold text-foreground">
-            ReadFlow
+            GreatReading
           </h1>
           <p className="text-muted-foreground">Create your account</p>
         </div>
@@ -98,13 +98,13 @@ export default function Signup() {
                 Creating account...
               </>
             ) : (
-              'Create account'
+              "Create account"
             )}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className="text-primary hover:underline">
             Sign in
           </Link>

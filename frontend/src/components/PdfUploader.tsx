@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { Upload, FileText, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useState, useCallback } from "react";
+import { Upload, FileText, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface PdfUploaderProps {
   onUpload: (file: File, content: string[]) => void;
@@ -15,7 +15,7 @@ export function PdfUploader({ onUpload }: PdfUploaderProps) {
     // Mock PDF extraction - in production, use pdf.js or a backend service
     // For now, return sample content for demonstration
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     const sampleContent = [
       // Page 1
       `The sun was setting over the quiet village, casting long shadows across the cobblestone streets. Mary stood at her window, watching the last rays of light dance upon the rooftops. She had lived in this house for thirty years, yet each sunset seemed to bring new colors she had never noticed before.
@@ -26,7 +26,7 @@ The village had changed little since her childhood. The same bakery stood on the
 
 She turned from the window and picked up the letter that had arrived that morning. The handwriting was unfamiliar, but the return address made her heart skip a beat. After all these years, someone from her past had reached out.`,
 
-      // Page 2  
+      // Page 2
       `The letter began simply enough: "Dear Mary, you may not remember me, but I have thought about our conversation every day for the past forty years."
 
 Mary sank into her favorite armchair, the one with the worn velvet that had belonged to her mother. Who could this be? The signature at the bottom read "Thomas," a name that stirred something deep in her memory.
@@ -64,8 +64,8 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
   };
 
   const handleFile = async (file: File) => {
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF file');
+    if (file.type !== "application/pdf") {
+      alert("Please upload a PDF file");
       return;
     }
 
@@ -74,8 +74,8 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
       const content = await extractTextFromPdf(file);
       onUpload(file, content);
     } catch (error) {
-      console.error('Error processing PDF:', error);
-      alert('Error processing PDF. Please try again.');
+      console.error("Error processing PDF:", error);
+      alert("Error processing PDF. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -114,7 +114,7 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="mb-2 font-reading text-4xl font-bold text-foreground">
-            ReadFlow
+            GreatReading
           </h1>
           <p className="text-lg text-muted-foreground">
             Upload a book and start your focused reading session
@@ -127,11 +127,11 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            'group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 transition-all',
+            "group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 transition-all",
             isDragging
-              ? 'border-primary bg-primary/5'
-              : 'border-border hover:border-primary/50 hover:bg-muted/50',
-            isProcessing && 'pointer-events-none opacity-70'
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/50 hover:bg-muted/50",
+            isProcessing && "pointer-events-none opacity-70",
           )}
         >
           <input
@@ -144,8 +144,10 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
 
           <div
             className={cn(
-              'mb-4 rounded-full p-4 transition-colors',
-              isDragging ? 'bg-primary/10' : 'bg-muted group-hover:bg-primary/10'
+              "mb-4 rounded-full p-4 transition-colors",
+              isDragging
+                ? "bg-primary/10"
+                : "bg-muted group-hover:bg-primary/10",
             )}
           >
             {isProcessing ? (
@@ -153,18 +155,20 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
             ) : (
               <Upload
                 className={cn(
-                  'h-10 w-10 transition-colors',
-                  isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                  "h-10 w-10 transition-colors",
+                  isDragging
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-primary",
                 )}
               />
             )}
           </div>
 
           <p className="mb-2 text-lg font-medium text-foreground">
-            {isProcessing ? 'Processing your book...' : 'Drop your PDF here'}
+            {isProcessing ? "Processing your book..." : "Drop your PDF here"}
           </p>
           <p className="text-sm text-muted-foreground">
-            {isProcessing ? 'This may take a moment' : 'or click to browse'}
+            {isProcessing ? "This may take a moment" : "or click to browse"}
           </p>
         </label>
 
