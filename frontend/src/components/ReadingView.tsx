@@ -1,10 +1,10 @@
-import { useState, useCallback, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Book } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ReadingMode, WordContextMenuData } from '@/types/reading';
-import { WordContextMenu } from './WordContextMenu';
-import { getWordDefinition, pronounceWord } from '@/lib/mockDictionary';
-import { cn } from '@/lib/utils';
+import { useState, useCallback, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Book } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ReadingMode, WordContextMenuData } from "@/types/reading";
+import { WordContextMenu } from "./WordContextMenu";
+import { getWordDefinition, pronounceWord } from "@/lib/mockDictionary";
+import { cn } from "@/lib/utils";
 
 interface ReadingViewProps {
   content: string[];
@@ -23,12 +23,14 @@ export function ReadingView({
   hasWord,
   onAddWord,
 }: ReadingViewProps) {
-  const [contextMenu, setContextMenu] = useState<WordContextMenuData | null>(null);
+  const [contextMenu, setContextMenu] = useState<WordContextMenuData | null>(
+    null,
+  );
   const [currentSentence, setCurrentSentence] = useState(0);
 
   // Split current page content into sentences for sentence mode
   const sentences = useMemo(() => {
-    const pageContent = content[currentPage] || '';
+    const pageContent = content[currentPage] || "";
     return pageContent
       .split(/(?<=[.!?])\s+/)
       .filter((s) => s.trim().length > 0);
@@ -40,9 +42,9 @@ export function ReadingView({
 
     const word = selection.toString().trim();
     // Only handle single words
-    if (word.includes(' ')) return;
+    if (word.includes(" ")) return;
 
-    const cleanWord = word.replace(/[^a-zA-Z'-]/g, '');
+    const cleanWord = word.replace(/[^a-zA-Z'-]/g, "");
     if (cleanWord.length === 0) return;
 
     const definition = getWordDefinition(cleanWord);
@@ -61,9 +63,8 @@ export function ReadingView({
   const handleAddToDictionary = useCallback(() => {
     if (!contextMenu) return;
 
-    const context = mode === 'sentence' 
-      ? sentences[currentSentence] 
-      : undefined;
+    const context =
+      mode === "sentence" ? sentences[currentSentence] : undefined;
 
     onAddWord(contextMenu.word, contextMenu.definition, context);
   }, [contextMenu, onAddWord, mode, sentences, currentSentence]);
@@ -93,7 +94,7 @@ export function ReadingView({
     } else if (currentPage > 0) {
       onPageChange(currentPage - 1);
       // Set to last sentence of previous page
-      const prevPageContent = content[currentPage - 1] || '';
+      const prevPageContent = content[currentPage - 1] || "";
       const prevSentences = prevPageContent
         .split(/(?<=[.!?])\s+/)
         .filter((s) => s.trim().length > 0);
@@ -112,41 +113,74 @@ export function ReadingView({
 
   // Render word with clickable styling
   const renderWord = (word: string, index: number) => {
-    const cleanWord = word.replace(/[^a-zA-Z'-]/g, '');
+    const cleanWord = word.replace(/[^a-zA-Z'-]/g, "");
     const isInDict = cleanWord.length > 0 && hasWord(cleanWord);
-    const punctuation = word.replace(/[a-zA-Z'-]/g, '');
-    
+    const punctuation = word.replace(/[a-zA-Z'-]/g, "");
+
     return (
       <span key={index}>
         <span
           className={cn(
-            'word-clickable',
-            isInDict && 'bg-primary/10 text-primary'
+            "word-clickable",
+            isInDict && "bg-primary/10 text-primary",
           )}
         >
           {cleanWord}
         </span>
-        {punctuation}
-        {' '}
+        {punctuation}{" "}
       </span>
     );
   };
 
+  // Check if a paragraph looks like a heading (short, no ending punctuation, often title case)
+  const isHeading = (text: string): boolean => {
+    const trimmed = text.trim();
+    // Headings are typically short (less than 100 chars) and don't end with sentence punctuation
+    if (trimmed.length > 100) return false;
+    if (/[.,;]$/.test(trimmed)) return false;
+    // Check if it's mostly title case or all caps
+    const words = trimmed.split(/\s+/);
+    if (words.length <= 6) {
+      const capitalizedWords = words.filter(
+        (w) => /^[A-Z]/.test(w) || /^\d/.test(w),
+      );
+      return capitalizedWords.length >= words.length * 0.5;
+    }
+    return false;
+  };
+
   const renderContent = () => {
-    if (mode === 'page') {
-      const pageContent = content[currentPage] || '';
-      const words = pageContent.split(' ');
+    if (mode === "page") {
+      const pageContent = content[currentPage] || "";
+      // Split content by double newlines to get paragraphs
+      const paragraphs = pageContent.split(/\n\n+/).filter((p) => p.trim());
 
       return (
-        <div className="reading-text text-lg">
-          {words.map((word, index) => renderWord(word, index))}
+        <div className="reading-text text-lg space-y-4">
+          {paragraphs.map((paragraph, paraIndex) => {
+            const heading = isHeading(paragraph);
+            const words = paragraph.split(" ");
+
+            return (
+              <p
+                key={paraIndex}
+                className={cn(
+                  heading && "text-xl font-semibold text-center mt-6 mb-4",
+                )}
+              >
+                {words.map((word, wordIndex) =>
+                  renderWord(word, paraIndex * 10000 + wordIndex),
+                )}
+              </p>
+            );
+          })}
         </div>
       );
     }
 
     // Sentence mode
-    const currentSentenceText = sentences[currentSentence] || '';
-    const words = currentSentenceText.split(' ');
+    const currentSentenceText = sentences[currentSentence] || "";
+    const words = currentSentenceText.split(" ");
 
     return (
       <div className="flex min-h-[200px] items-center justify-center">
@@ -171,8 +205,12 @@ export function ReadingView({
       <div className="mt-4 flex items-center justify-between">
         <Button
           variant="outline"
-          onClick={mode === 'page' ? goToPreviousPage : goToPreviousSentence}
-          disabled={mode === 'page' ? currentPage === 0 : (currentPage === 0 && currentSentence === 0)}
+          onClick={mode === "page" ? goToPreviousPage : goToPreviousSentence}
+          disabled={
+            mode === "page"
+              ? currentPage === 0
+              : currentPage === 0 && currentSentence === 0
+          }
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Previous
@@ -180,24 +218,26 @@ export function ReadingView({
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Book className="h-4 w-4" />
-          {mode === 'page' ? (
+          {mode === "page" ? (
             <span>
               Page {currentPage + 1} of {content.length}
             </span>
           ) : (
             <span>
-              Sentence {currentSentence + 1}/{sentences.length} • Page {currentPage + 1}/{content.length}
+              Sentence {currentSentence + 1}/{sentences.length} • Page{" "}
+              {currentPage + 1}/{content.length}
             </span>
           )}
         </div>
 
         <Button
           variant="outline"
-          onClick={mode === 'page' ? goToNextPage : goToNextSentence}
+          onClick={mode === "page" ? goToNextPage : goToNextSentence}
           disabled={
-            mode === 'page'
+            mode === "page"
               ? currentPage === content.length - 1
-              : currentPage === content.length - 1 && currentSentence === sentences.length - 1
+              : currentPage === content.length - 1 &&
+                currentSentence === sentences.length - 1
           }
         >
           Next
