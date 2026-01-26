@@ -4,26 +4,31 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.security import get_current_user
 from app.db.database import get_db
 from app.models.book import Book
+from app.models.user import User
 from app.schemas.book import BookListResponse, BookResponse, BookUpdate
 from app.services.pdf_service import pdf_service
 
 router = APIRouter()
 
-# Temporary user ID for MVP (single user)
-TEMP_USER_ID = "default-user"
-
 
 @router.get("", response_model=BookListResponse)
-def list_books(db: Session = Depends(get_db)):
+def list_books(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
     """List all books uploaded by the user"""
-    books = db.query(Book).filter(Book.user_id == TEMP_USER_ID).all()
+    books = db.query(Book).filter(Book.user_id == current_user.id).all()
     return BookListResponse(books=books)
 
 
 @router.post("", response_model=BookResponse, status_code=status.HTTP_201_CREATED)
-async def upload_book(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_book(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Upload a new PDF book"""
 
     # Validate file type
@@ -64,7 +69,7 @@ async def upload_book(file: UploadFile = File(...), db: Session = Depends(get_db
     # Check if book with same name already exists
     existing_book = (
         db.query(Book)
-        .filter(Book.user_id == TEMP_USER_ID, Book.name == book_name)
+        .filter(Book.user_id == current_user.id, Book.name == book_name)
         .first()
     )
 
@@ -81,7 +86,7 @@ async def upload_book(file: UploadFile = File(...), db: Session = Depends(get_db
     # Create new book
     book = Book(
         id=str(uuid.uuid4()),
-        user_id=TEMP_USER_ID,
+        user_id=current_user.id,
         name=book_name,
         content=content,
         current_page=0,
@@ -97,10 +102,16 @@ async def upload_book(file: UploadFile = File(...), db: Session = Depends(get_db
 
 
 @router.get("/{book_id}", response_model=BookResponse)
-def get_book(book_id: str, db: Session = Depends(get_db)):
+def get_book(
+    book_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Get a specific book by ID"""
     book = (
-        db.query(Book).filter(Book.id == book_id, Book.user_id == TEMP_USER_ID).first()
+        db.query(Book)
+        .filter(Book.id == book_id, Book.user_id == current_user.id)
+        .first()
     )
 
     if not book:
@@ -113,11 +124,16 @@ def get_book(book_id: str, db: Session = Depends(get_db)):
 
 @router.patch("/{book_id}", response_model=BookResponse)
 def update_book_progress(
-    book_id: str, book_update: BookUpdate, db: Session = Depends(get_db)
+    book_id: str,
+    book_update: BookUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Update book reading progress"""
     book = (
-        db.query(Book).filter(Book.id == book_id, Book.user_id == TEMP_USER_ID).first()
+        db.query(Book)
+        .filter(Book.id == book_id, Book.user_id == current_user.id)
+        .first()
     )
 
     if not book:
@@ -140,10 +156,16 @@ def update_book_progress(
 
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_book(book_id: str, db: Session = Depends(get_db)):
+def delete_book(
+    book_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Delete a book"""
     book = (
-        db.query(Book).filter(Book.id == book_id, Book.user_id == TEMP_USER_ID).first()
+        db.query(Book)
+        .filter(Book.id == book_id, Book.user_id == current_user.id)
+        .first()
     )
 
     if not book:

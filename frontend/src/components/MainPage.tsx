@@ -7,7 +7,9 @@ import {
   Loader2,
   Trash2,
   Volume2,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,6 +45,7 @@ export function MainPage({
   timerDuration,
   onTimerDurationChange,
 }: MainPageProps) {
+  const { user, logout } = useAuth();
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showBooks, setShowBooks] = useState(false);
@@ -158,13 +161,29 @@ Mary stepped aside to let him enter, feeling as though the years were folding in
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-xl">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 font-reading text-4xl font-bold text-foreground">
-            ReadFlow
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Upload a book and start your focused reading session
-          </p>
+        {/* Header with logout */}
+        <div className="mb-8">
+          <div className="flex items-center justify-end mb-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{user?.email}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="text-center">
+            <h1 className="mb-2 font-reading text-4xl font-bold text-foreground">
+              ReadFlow
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Upload a book and start your focused reading session
+            </p>
+          </div>
         </div>
 
         {/* Upload area */}

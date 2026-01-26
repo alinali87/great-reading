@@ -23,21 +23,21 @@ def create_test_pdf() -> bytes:
     return buffer.read()
 
 
-def test_list_books_empty(client):
+def test_list_books_empty(authenticated_client, test_user):
     """Test listing books when there are none"""
-    response = client.get("/api/v1/books")
+    response = authenticated_client.get("/api/v1/books")
     assert response.status_code == 200
     data = response.json()
     assert "books" in data
     assert data["books"] == []
 
 
-def test_list_books_with_data(client, db_session):
+def test_list_books_with_data(authenticated_client, db_session, test_user):
     """Test listing books when there are some"""
-    # Create test books
+    # Create test books for the test user
     book1 = Book(
         id=str(uuid.uuid4()),
-        user_id="default-user",
+        user_id=test_user.id,
         name="Test Book 1",
         content=["Page 1", "Page 2"],
         current_page=0,
@@ -46,7 +46,7 @@ def test_list_books_with_data(client, db_session):
     )
     book2 = Book(
         id=str(uuid.uuid4()),
-        user_id="default-user",
+        user_id=test_user.id,
         name="Test Book 2",
         content=["Page 1"],
         current_page=0,
@@ -57,17 +57,17 @@ def test_list_books_with_data(client, db_session):
     db_session.add(book2)
     db_session.commit()
 
-    response = client.get("/api/v1/books")
+    response = authenticated_client.get("/api/v1/books")
     assert response.status_code == 200
     data = response.json()
     assert len(data["books"]) == 2
 
 
-def test_upload_book_success(client):
+def test_upload_book_success(authenticated_client, test_user):
     """Test successful book upload"""
     pdf_content = create_test_pdf()
 
-    response = client.post(
+    response = authenticated_client.post(
         "/api/v1/books",
         files={"file": ("test_book.pdf", pdf_content, "application/pdf")},
     )
@@ -81,9 +81,9 @@ def test_upload_book_success(client):
     assert data["currentPage"] == 0
 
 
-def test_upload_book_invalid_file_type(client):
+def test_upload_book_invalid_file_type(authenticated_client, test_user):
     """Test uploading non-PDF file"""
-    response = client.post(
+    response = authenticated_client.post(
         "/api/v1/books",
         files={"file": ("test.txt", b"Not a PDF", "text/plain")},
     )
@@ -92,12 +92,12 @@ def test_upload_book_invalid_file_type(client):
     assert "Invalid file type" in response.json()["detail"]
 
 
-def test_upload_book_too_large(client):
+def test_upload_book_too_large(authenticated_client, test_user):
     """Test uploading file that exceeds size limit"""
     # Create a large fake PDF content (51MB)
     large_content = b"x" * (51 * 1024 * 1024)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/api/v1/books",
         files={"file": ("large.pdf", large_content, "application/pdf")},
     )
@@ -106,12 +106,12 @@ def test_upload_book_too_large(client):
     assert "File too large" in response.json()["detail"]
 
 
-def test_get_book_success(client, db_session):
+def test_get_book_success(authenticated_client, db_session, test_user):
     """Test getting a specific book"""
     book_id = str(uuid.uuid4())
     book = Book(
         id=book_id,
-        user_id="default-user",
+        user_id=test_user.id,
         name="Test Book",
         content=["Page 1", "Page 2", "Page 3"],
         current_page=1,
@@ -121,7 +121,7 @@ def test_get_book_success(client, db_session):
     db_session.add(book)
     db_session.commit()
 
-    response = client.get(f"/api/v1/books/{book_id}")
+    response = authenticated_client.get(f"/api/v1/books/{book_id}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == book_id
@@ -130,20 +130,20 @@ def test_get_book_success(client, db_session):
     assert len(data["content"]) == 3
 
 
-def test_get_book_not_found(client):
+def test_get_book_not_found(authenticated_client, test_user):
     """Test getting a non-existent book"""
     fake_id = str(uuid.uuid4())
-    response = client.get(f"/api/v1/books/{fake_id}")
+    response = authenticated_client.get(f"/api/v1/books/{fake_id}")
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
 
 
-def test_update_book_progress_success(client, db_session):
+def test_update_book_progress_success(authenticated_client, db_session, test_user):
     """Test updating book progress"""
     book_id = str(uuid.uuid4())
     book = Book(
         id=book_id,
-        user_id="default-user",
+        user_id=test_user.id,
         name="Test Book",
         content=["Page 1", "Page 2", "Page 3"],
         current_page=0,
@@ -153,7 +153,7 @@ def test_update_book_progress_success(client, db_session):
     db_session.add(book)
     db_session.commit()
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/api/v1/books/{book_id}",
         json={"currentPage": 2},
     )
@@ -163,12 +163,12 @@ def test_update_book_progress_success(client, db_session):
     assert data["currentPage"] == 2
 
 
-def test_update_book_progress_invalid_page(client, db_session):
+def test_update_book_progress_invalid_page(authenticated_client, db_session, test_user):
     """Test updating book progress with invalid page number"""
     book_id = str(uuid.uuid4())
     book = Book(
         id=book_id,
-        user_id="default-user",
+        user_id=test_user.id,
         name="Test Book",
         content=["Page 1", "Page 2"],
         current_page=0,
@@ -178,7 +178,7 @@ def test_update_book_progress_invalid_page(client, db_session):
     db_session.add(book)
     db_session.commit()
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/api/v1/books/{book_id}",
         json={"currentPage": 5},
     )
@@ -187,22 +187,22 @@ def test_update_book_progress_invalid_page(client, db_session):
     assert "Invalid page number" in response.json()["detail"]
 
 
-def test_update_book_progress_not_found(client):
+def test_update_book_progress_not_found(authenticated_client, test_user):
     """Test updating progress for non-existent book"""
     fake_id = str(uuid.uuid4())
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/api/v1/books/{fake_id}",
         json={"currentPage": 1},
     )
     assert response.status_code == 404
 
 
-def test_delete_book_success(client, db_session):
+def test_delete_book_success(authenticated_client, db_session, test_user):
     """Test deleting a book"""
     book_id = str(uuid.uuid4())
     book = Book(
         id=book_id,
-        user_id="default-user",
+        user_id=test_user.id,
         name="Test Book",
         content=["Page 1"],
         current_page=0,
@@ -212,16 +212,16 @@ def test_delete_book_success(client, db_session):
     db_session.add(book)
     db_session.commit()
 
-    response = client.delete(f"/api/v1/books/{book_id}")
+    response = authenticated_client.delete(f"/api/v1/books/{book_id}")
     assert response.status_code == 204
 
     # Verify book is deleted
-    response = client.get(f"/api/v1/books/{book_id}")
+    response = authenticated_client.get(f"/api/v1/books/{book_id}")
     assert response.status_code == 404
 
 
-def test_delete_book_not_found(client):
+def test_delete_book_not_found(authenticated_client, test_user):
     """Test deleting a non-existent book"""
     fake_id = str(uuid.uuid4())
-    response = client.delete(f"/api/v1/books/{fake_id}")
+    response = authenticated_client.delete(f"/api/v1/books/{fake_id}")
     assert response.status_code == 404

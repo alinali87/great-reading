@@ -3,8 +3,10 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user
 from app.db.database import get_db
 from app.models.dictionary import DictionaryWord
+from app.models.user import User
 from app.schemas.dictionary import (
     DictionaryListResponse,
     DictionaryWordCreate,
@@ -13,9 +15,6 @@ from app.schemas.dictionary import (
 )
 
 router = APIRouter()
-
-# Temporary user ID for MVP (single user)
-TEMP_USER_ID = "default-user"
 
 
 @router.get("", response_model=DictionaryListResponse)
@@ -27,11 +26,12 @@ def get_dictionary(
     limit: int = Query(default=100, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Get user's personal dictionary"""
 
     # Build query
-    query = db.query(DictionaryWord).filter(DictionaryWord.user_id == TEMP_USER_ID)
+    query = db.query(DictionaryWord).filter(DictionaryWord.user_id == current_user.id)
 
     # Apply sorting
     if sort == "addedAt_desc":
@@ -56,7 +56,9 @@ def get_dictionary(
     "", response_model=DictionaryWordResponse, status_code=status.HTTP_201_CREATED
 )
 def add_word_to_dictionary(
-    word_data: DictionaryWordCreate, db: Session = Depends(get_db)
+    word_data: DictionaryWordCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Add a new word to dictionary"""
 
@@ -66,7 +68,7 @@ def add_word_to_dictionary(
     existing_word = (
         db.query(DictionaryWord)
         .filter(
-            DictionaryWord.user_id == TEMP_USER_ID, DictionaryWord.word == clean_word
+            DictionaryWord.user_id == current_user.id, DictionaryWord.word == clean_word
         )
         .first()
     )
@@ -80,7 +82,7 @@ def add_word_to_dictionary(
     # Create new dictionary word
     dictionary_word = DictionaryWord(
         id=str(uuid.uuid4()),
-        user_id=TEMP_USER_ID,
+        user_id=current_user.id,
         word=clean_word,
         definition=word_data.definition,
         context=word_data.context,
@@ -94,12 +96,16 @@ def add_word_to_dictionary(
 
 
 @router.delete("/{word_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_word_from_dictionary(word_id: str, db: Session = Depends(get_db)):
+def remove_word_from_dictionary(
+    word_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Remove a word from dictionary"""
 
     word = (
         db.query(DictionaryWord)
-        .filter(DictionaryWord.id == word_id, DictionaryWord.user_id == TEMP_USER_ID)
+        .filter(DictionaryWord.id == word_id, DictionaryWord.user_id == current_user.id)
         .first()
     )
 
@@ -115,7 +121,11 @@ def remove_word_from_dictionary(word_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/check/{word}", response_model=WordExistsResponse)
-def check_word_in_dictionary(word: str, db: Session = Depends(get_db)):
+def check_word_in_dictionary(
+    word: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Check if a word exists in the dictionary"""
 
     clean_word = word.lower().strip()
@@ -123,7 +133,7 @@ def check_word_in_dictionary(word: str, db: Session = Depends(get_db)):
     exists = (
         db.query(DictionaryWord)
         .filter(
-            DictionaryWord.user_id == TEMP_USER_ID, DictionaryWord.word == clean_word
+            DictionaryWord.user_id == current_user.id, DictionaryWord.word == clean_word
         )
         .first()
         is not None
