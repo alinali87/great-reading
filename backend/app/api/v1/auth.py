@@ -15,7 +15,6 @@ from app.core.security import (
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserResponse
-from app.services.sample_book import create_sample_book_for_user
 
 router = APIRouter()
 
@@ -42,9 +41,6 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-
-    # Create sample book for the new user
-    create_sample_book_for_user(db, user.id)
 
     return user
 
