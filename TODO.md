@@ -1,8 +1,5 @@
-- One click on a word -> pronounce
+
 - PDF Parsing: paragraphs are separated based on number of sentences (how to improve it or get from the source pdf?)
-- Navigation: right arrow -> next page; left arrow -> previous page
 - Dictionary: lookup word definitions and add the automatically
-- words with hyphens: add to the dictionary, i.e. highlight the hyphenated word -> add
-- group of words (e.g. Non-Uniform Memory Architecture): add to the dictionary (see words with hyphens)
 - edit/add word defintion
-- update the readme & sample book to explain the idea of the app
+
