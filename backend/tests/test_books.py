@@ -24,16 +24,19 @@ def create_test_pdf() -> bytes:
 
 
 def test_list_books_empty(authenticated_client, test_user):
-    """Test listing books when there are none"""
+    """Test listing books when there are none (sample book is always included)"""
     response = authenticated_client.get("/api/v1/books")
     assert response.status_code == 200
     data = response.json()
     assert "books" in data
-    assert data["books"] == []
+    # Sample book is always included
+    assert len(data["books"]) == 1
+    assert data["books"][0]["id"] == "sample-welcome-book"
+    assert data["books"][0]["name"] == "Welcome to GreatReading"
 
 
 def test_list_books_with_data(authenticated_client, db_session, test_user):
-    """Test listing books when there are some"""
+    """Test listing books when there are some (sample book + user books)"""
     # Create test books for the test user
     book1 = Book(
         id=str(uuid.uuid4()),
@@ -60,7 +63,10 @@ def test_list_books_with_data(authenticated_client, db_session, test_user):
     response = authenticated_client.get("/api/v1/books")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["books"]) == 2
+    # 1 sample book + 2 user books = 3 total
+    assert len(data["books"]) == 3
+    # Sample book should be first
+    assert data["books"][0]["id"] == "sample-welcome-book"
 
 
 def test_upload_book_success(authenticated_client, test_user):

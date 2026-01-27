@@ -10,6 +10,11 @@ from app.models.book import Book
 from app.models.user import User
 from app.schemas.book import BookListResponse, BookResponse, BookUpdate
 from app.services.pdf_service import pdf_service
+from app.services.sample_book import (
+    SAMPLE_BOOK_ID,
+    get_sample_book_data,
+    is_sample_book,
+)
 
 router = APIRouter()
 
@@ -20,7 +25,17 @@ def list_books(
 ):
     """List all books uploaded by the user"""
     books = db.query(Book).filter(Book.user_id == current_user.id).all()
-    return BookListResponse(books=books)
+
+    # Add the sample book (loaded from code, always up to date)
+    sample_book_data = get_sample_book_data()
+    sample_book = BookResponse(**sample_book_data)
+
+    # Convert DB books to response and prepend sample book
+    book_responses = [sample_book] + [
+        BookResponse.model_validate(book) for book in books
+    ]
+
+    return BookListResponse(books=book_responses)
 
 
 @router.post("", response_model=BookResponse, status_code=status.HTTP_201_CREATED)
@@ -108,6 +123,10 @@ def get_book(
     current_user: User = Depends(get_current_user),
 ):
     """Get a specific book by ID"""
+    # Handle sample book specially - load from code
+    if is_sample_book(book_id):
+        return BookResponse(**get_sample_book_data())
+
     book = (
         db.query(Book)
         .filter(Book.id == book_id, Book.user_id == current_user.id)
@@ -130,6 +149,19 @@ def update_book_progress(
     current_user: User = Depends(get_current_user),
 ):
     """Update book reading progress"""
+    # Handle sample book - progress is not persisted
+    if is_sample_book(book_id):
+        sample_data = get_sample_book_data()
+        # Validate current_page is within bounds
+        if book_update.current_page >= sample_data["total_pages"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid page number. Book has {sample_data['total_pages']} pages",
+            )
+        # Return the sample book with updated page (not persisted)
+        sample_data["current_page"] = book_update.current_page
+        return BookResponse(**sample_data)
+
     book = (
         db.query(Book)
         .filter(Book.id == book_id, Book.user_id == current_user.id)
@@ -162,6 +194,13 @@ def delete_book(
     current_user: User = Depends(get_current_user),
 ):
     """Delete a book"""
+    # Sample book cannot be deleted
+    if is_sample_book(book_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The sample book cannot be deleted",
+        )
+
     book = (
         db.query(Book)
         .filter(Book.id == book_id, Book.user_id == current_user.id)
