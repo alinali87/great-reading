@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ReadingMode, WordContextMenuData } from "@/types/reading";
@@ -35,26 +35,6 @@ export function ReadingView({
       .split(/(?<=[.!?])\s+/)
       .filter((s) => s.trim().length > 0);
   }, [content, currentPage]);
-
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    const selection = window.getSelection();
-    if (!selection || selection.toString().trim().length === 0) return;
-
-    const word = selection.toString().trim();
-    // Only handle single words
-    if (word.includes(" ")) return;
-
-    const cleanWord = word.replace(/[^a-zA-Z'-]/g, "");
-    if (cleanWord.length === 0) return;
-
-    const definition = getWordDefinition(cleanWord);
-
-    setContextMenu({
-      word: cleanWord,
-      definition,
-      position: { x: e.clientX, y: e.clientY },
-    });
-  }, []);
 
   const handleCloseContextMenu = useCallback(() => {
     setContextMenu(null);
@@ -110,6 +90,75 @@ export function ReadingView({
       setCurrentSentence(0);
     }
   };
+
+  // Handle text selection: show context menu and pronounce (up to 10 words)
+  const handleMouseUp = useCallback((e: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) return;
+
+    const selectedText = selection.toString().trim();
+    if (selectedText.length === 0) return;
+
+    // Cancel any ongoing speech before starting new one
+    if ("speechSynthesis" in window) {
+      speechSynthesis.cancel();
+    }
+
+    // Split into words and limit to 10
+    const words = selectedText.split(/\s+/).slice(0, 10);
+    const textToPronounce = words.join(" ");
+
+    // Pronounce the selected text
+    pronounceWord(textToPronounce);
+
+    // Clean the text for display (remove punctuation from edges)
+    const cleanText = textToPronounce.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    if (cleanText.length === 0) return;
+
+    // Get definition (for single words) or generic message (for phrases)
+    const isSingleWord = words.length === 1;
+    const definition = isSingleWord
+      ? getWordDefinition(cleanText)
+      : `Selected phrase: "${textToPronounce}"`;
+
+    setContextMenu({
+      word: cleanText,
+      definition,
+      position: { x: e.clientX, y: e.clientY },
+    });
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (mode === "page") {
+          goToNextPage();
+        } else {
+          goToNextSentence();
+        }
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (mode === "page") {
+          goToPreviousPage();
+        } else {
+          goToPreviousSentence();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mode, currentPage, currentSentence, content.length, sentences.length]);
 
   // Render word with clickable styling
   const renderWord = (word: string, index: number) => {
@@ -192,10 +241,7 @@ export function ReadingView({
   };
 
   return (
-    <div
-      className="relative flex h-full flex-col"
-      onDoubleClick={handleDoubleClick}
-    >
+    <div className="relative flex h-full flex-col" onMouseUp={handleMouseUp}>
       {/* Content area */}
       <div className="flex-1 overflow-auto rounded-xl bg-reading-bg p-8">
         {renderContent()}
