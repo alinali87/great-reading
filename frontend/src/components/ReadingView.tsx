@@ -111,6 +111,31 @@ export function ReadingView({
     }
   };
 
+  // Pronounce selected text on mouse up (up to 10 words)
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) return;
+
+      const selectedText = selection.toString().trim();
+      if (selectedText.length === 0) return;
+
+      // Cancel any ongoing speech before starting new one
+      if ("speechSynthesis" in window) {
+        speechSynthesis.cancel();
+      }
+
+      // Split into words and limit to 10
+      const words = selectedText.split(/\s+/).slice(0, 10);
+      const textToPronounce = words.join(" ");
+
+      pronounceWord(textToPronounce);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => document.removeEventListener("mouseup", handleMouseUp);
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
