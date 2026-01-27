@@ -1,10 +1,9 @@
-"""Sample book service - creates a welcome book for new users"""
+"""Sample book service - provides a welcome book for all users"""
 
-import uuid
+from datetime import datetime
 
-from sqlalchemy.orm import Session
-
-from app.models.book import Book
+# Constant ID for the sample book - same for all users
+SAMPLE_BOOK_ID = "sample-welcome-book"
 
 # Sample book content - a short story for new users
 SAMPLE_BOOK_NAME = "Welcome to GreatReading"
@@ -42,29 +41,27 @@ Happy reading! Upload your first book and start your learning journey.""",
 ]
 
 
-def create_sample_book_for_user(db: Session, user_id: str) -> Book:
+def get_sample_book_data() -> dict:
     """
-    Create a sample welcome book for a new user.
-
-    Args:
-        db: Database session
-        user_id: The ID of the user to create the book for
+    Get the sample book data as a dictionary.
+    This is loaded from code, not from the database, so it's always up to date.
 
     Returns:
-        The created Book object
+        Dictionary with sample book data matching BookResponse schema
     """
-    book = Book(
-        id=str(uuid.uuid4()),
-        user_id=user_id,
-        name=SAMPLE_BOOK_NAME,
-        content=SAMPLE_BOOK_CONTENT,
-        current_page=0,
-        total_pages=len(SAMPLE_BOOK_CONTENT),
-        file_size=len("".join(SAMPLE_BOOK_CONTENT)),
-    )
+    now = datetime.utcnow()
+    return {
+        "id": SAMPLE_BOOK_ID,
+        "name": SAMPLE_BOOK_NAME,
+        "content": SAMPLE_BOOK_CONTENT,
+        "current_page": 0,
+        "total_pages": len(SAMPLE_BOOK_CONTENT),
+        "file_size": len("".join(SAMPLE_BOOK_CONTENT)),
+        "created_at": now,
+        "updated_at": now,
+    }
 
-    db.add(book)
-    db.commit()
-    db.refresh(book)
 
-    return book
+def is_sample_book(book_id: str) -> bool:
+    """Check if the given book_id is the sample book"""
+    return book_id == SAMPLE_BOOK_ID
