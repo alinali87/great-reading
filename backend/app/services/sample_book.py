@@ -10,34 +10,37 @@ SAMPLE_BOOK_NAME = "Welcome to GreatReading"
 SAMPLE_BOOK_CONTENT = [
     """Welcome to GreatReading!
 
-This is your personal reading companion designed to help you improve your English reading skills. Here's how to get the most out of this app.
+GreatReading is your personal reading companion, designed to help you read great books.
 
-GreatReading is built around the idea of focused reading sessions. Instead of reading for hours without direction, you'll read in timed intervals that help maintain concentration and retention.
+Sometimes great books are hard to read. Shakespeare's language can be difficult even for native speakers. A book on quantum mechanics can feel dense and abstract - even for very smart physicists.
 
-Double-click on any word to see its definition and add it to your personal dictionary. This way, you build vocabulary as you read.""",
-    """Getting Started with Reading
+But this extra effort shouldn't discourage us. Reading the right books matters, even when it's tough.
 
-To begin, upload a PDF book using the upload area on the main page. Your books are private and only visible to you.
+At the same time, life is busy and full of distractions. It's hard to find time to sit down and read seriously.
 
-Once uploaded, click on a book to start reading. You can navigate between pages using the Previous and Next buttons, or use keyboard arrows.
+GreatReading helps you build a habit of reading books that truly matter. You can start small - just 5 minutes a day. Start the timer and spend a few focused minutes with your book.
 
-The timer feature helps you stay focused. Choose 5, 10, or 15 minute sessions. When the timer ends, you'll get a gentle reminder to take a break.""",
-    """Building Your Vocabulary
+Don't force yourself. Stay curious, like a child. Absorb the words and sentences. Pause and think for as long as it feels right.
 
-One of the most powerful features is the personal dictionary. When you encounter an unfamiliar word, double-click on it.
+If a book feels especially dense, switch to Sentence Mode and read one sentence at a time. There's no rush.
 
-A popup will appear showing the word's definition. Click "Add to Dictionary" to save it for later review.
+When you finish a session - congratulations! You've taken one step closer to becoming a great reader. You can start another timer or simply keep reading.
 
-You can access your saved words anytime from the Dictionary button on the main page. Regular review of these words will help cement them in your memory.""",
-    """Tips for Effective Reading
+Anyone can start small and become a great reader. Great readers understand great ideas. And great ideas can change the world.
 
-Read actively, not passively. Ask yourself questions about what you're reading. What is the main idea? What might happen next?
+How to Get Started with GreatReading
 
-Don't stop at every unknown word. Try to understand meaning from context first. Only look up words that are essential to understanding.
+To begin, upload a PDF using the upload area on the main page. Your books are private and visible only to you.
 
-Take notes mentally or in a separate notebook. Summarizing what you've read helps with comprehension and retention.
+Once uploaded, click on a book to start reading. You can move between pages using the Previous and Next buttons or the arrow keys on your keyboard.
 
-Happy reading! Upload your first book and start your learning journey.""",
+The timer helps you stay focused. Choose a 5, 10, or 15 minute session. When time is up, you'll receive a gentle reminder.
+
+Highlight any word to hear its pronunciation and add it to your personal dictionary. This helps you build vocabulary as you read.
+
+You can review your saved words anytime using the Dictionary button on the main page.
+
+Happy reading! Upload your first book and begin your reading journey.""",
 ]
 
 
