@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ReadingMode, WordContextMenuData } from "@/types/reading";
@@ -110,6 +110,38 @@ export function ReadingView({
       setCurrentSentence(0);
     }
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (mode === "page") {
+          goToNextPage();
+        } else {
+          goToNextSentence();
+        }
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (mode === "page") {
+          goToPreviousPage();
+        } else {
+          goToPreviousSentence();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mode, currentPage, currentSentence, content.length, sentences.length]);
 
   // Render word with clickable styling
   const renderWord = (word: string, index: number) => {
