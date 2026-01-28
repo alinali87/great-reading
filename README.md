@@ -1,6 +1,6 @@
 # GreatReading
 
-An English language learning reading application that helps you focus on reading with built-in timers, personal dictionary, and progress tracking.
+An app for focused reading that will help you read great books, even when it feels hard.
 
 ## Features
 
